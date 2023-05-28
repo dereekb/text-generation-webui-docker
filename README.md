@@ -15,7 +15,7 @@ This project dockerises the deployment of [oobabooga/text-generation-webui](http
 This is the recommended deployment method.
 
 ### Select variant
-Choose the desired variant by setting the build `target` in `docker-compose.yml` to one of the following options:
+Choose the desired variant by specifying the profile to use. These are the options:
 
 | Variant | Description | 
 |---|---|
@@ -27,34 +27,34 @@ Choose the desired variant by setting the build `target` in `docker-compose.yml`
 
 *See: [oobabooga/text-generation-webui/blob/main/docs/GPTQ-models-(4-bit-mode).md](https://github.com/oobabooga/text-generation-webui/blob/main/docs/GPTQ-models-(4-bit-mode).md) and [obabooga/text-generation-webui/blob/main/docs/llama.cpp-models.md](https://github.com/oobabooga/text-generation-webui/blob/main/docs/llama.cpp-models.md) for more information on variants.*
 
-### Build
-Build the image:
+### Run the Image
+To run a specific variant image:
 
-`docker compose build`
-
-*If you choose a different variant later, you must **rebuild** the image.*
-
-### Deploy
-Deploy the service:
-
-`docker compose up`
+```
+docker compose --profile [variant] up --build
+# where [variant] is one of: default | triton | cuda | monkey-patch | llama-cublas
+```
 
 ### Remove
-Remove the service:
+Remove a service:
 
-`docker compose down -v`
+```
+docker compose --profile [variant] down -v
+```
 
 ## Configuration
 These configuration instructions describe the relevant details for this docker wrapper. Refer to [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui) documentation for usage of the application itself.
 
 ### Ports
-Three commonly used ports are exposed:
+Three commonly used ports are available:
 
 |  Port  | Description |
 |  ----  | ----------- |
 | `7860` | Web UI port |
 | `5000` | API port    |
 | `5005` | Streaming port |
+
+Only port `7860` is exposed by default. Modify `docker-compose` to bind the other ports.
 
 *Extensions may use additional ports - check the application documentation for more details.*
 

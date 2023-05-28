@@ -1,19 +1,13 @@
 version: "3"
-services:
-  text-generation-webui-docker:
-    build:
-      context: .
-      target: default  # Specify the variant to build
-#      args:
-#        - LCL_SRC_DIR=text-generation-webui  # Developers - see Dockerfile app_base
-    container_name: text-generation-webui
+
+x-base-service: &base_service
     environment:
       - EXTRA_LAUNCH_ARGS="--listen --verbose" # Custom launch args (e.g., --model MODEL_NAME)
     ports:
       - 7860:7860  # Default web port
-#      - 5000:5000  # Default API port
-#      - 5005:5005  # Default streaming port
-#      - 5001:5001  # Default OpenAI API extension port
+  #      - 5000:5000  # Default API port
+  #      - 5005:5005  # Default streaming port
+  #      - 5001:5001  # Default OpenAI API extension port
     volumes:
       - ./config/loras:/app/loras
       - ./config/models:/app/models
@@ -21,6 +15,7 @@ services:
       - ./config/prompts:/app/prompts
       - ./config/softprompts:/app/softprompts
       - ./config/training:/app/training
+    stop_signal: SIGINT
     logging:
       driver:  json-file
       options:
@@ -33,3 +28,46 @@ services:
               - driver: nvidia
                 device_ids: ['0']
                 capabilities: [gpu]
+
+name: text-generation-webui
+
+services:
+  default: &default
+    <<: *base_service
+    profiles: ["default"]
+    build:
+      context: .
+      target: default
+    image: textui-default
+
+  triton: &triton
+    <<: *base_service
+    profiles: ["triton"]
+    build:
+      context: .
+      target: triton
+    image: textui-triton
+    
+  cuda: &cuda
+    <<: *base_service
+    profiles: ["cuda"]
+    build:
+      context: .
+      target: cuda
+    image: textui-cuda
+    
+  monkey-patch: &monkey-patch
+    <<: *base_service
+    profiles: ["monkey-patch"]
+    build:
+      context: .
+      target: monkey-patch
+    image: textui-monkey-patch
+    
+  llama-cublas: &llama-cublas
+    <<: *base_service
+    profiles: ["llama-cublas"]
+    build:
+      context: .
+      target: llama-cublas
+    image: textui-llama-cublas
